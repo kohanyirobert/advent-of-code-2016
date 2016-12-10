@@ -43,6 +43,7 @@ class Me:
         self.direction = NORTH
         self.x = 0
         self.y = 0
+        self.earlier_positions = set()
 
     def __str__(self):
         return '{:3},{:3} {}'.format(self.x, self.y, self.direction)
@@ -53,13 +54,27 @@ class Me:
         index = (index + offset) % len(DIRECTIONS)
         self.direction = DIRECTIONS[index]
 
-    def _move(self, step):
-        self.x += self.direction.x * step.distance
-        self.y += self.direction.y * step.distance
+    def _record_position(self):
+        self.earlier_positions.add((self.x, self.y))
+
+    def _move_one_position(self, step):
+        self.x += self.direction.x
+        self.y += self.direction.y
+
+    def _move_and_record_positions(self, step):
+        for _ in range(step.distance):
+            self._record_position()
+            self._move_one_position(step)
+            if self._is_already_visited():
+                return True
+        return False
+
+    def _is_already_visited(self):
+        return (self.x, self.y) in self.earlier_positions
 
     def follow(self, step):
         self._turn(step)
-        self._move(step)
+        return self._move_and_record_positions(step)
 
     def distance(self):
         return abs(self.x) + abs(self.y)
@@ -84,8 +99,12 @@ def get_steps(raw_steps):
 def follow_steps(me, steps):
     print(me, 'START')
     for step in steps:
-        me.follow(step)
-        print(me, step)
+        if not me.follow(step):
+            print(me, step)
+            pass
+        else:
+            print(me, 'VISITED')
+            break
     print(me, 'STOP')
 
 
