@@ -22,9 +22,11 @@ class Keypad:
 
     def __init__(self):
         self.grid = [
-            [1, 2, 3],
-            [4, 5, 6],
-            [7, 8, 9],
+            [' ', ' ', 1, ' ', ' '],
+            [' ', 2, 3, 4, ' '],
+            [5, 6, 7, 8, 9],
+            [' ', 'A', 'B', 'C', ' '],
+            [' ', ' ', 'D', ' ', ' '],
         ]
         self.pushed_keys = []
 
@@ -37,7 +39,9 @@ class Keypad:
         return s.strip('\n')
 
     def is_on_keypad(self, x, y):
-        return 0 <= x and 0 <= y and x < 3 and y < 3
+        size = len(self.grid)
+        return 0 <= x and 0 <= y and x < size and y < size \
+            and self.grid[x][y] != ' '
 
     def push_key(self, x, y):
         self.pushed_keys.append(str(self.grid[x][y]))
@@ -47,8 +51,8 @@ class Finger:
 
     def __init__(self, keypad):
         self.keypad = keypad
-        self.x = 1
-        self.y = 1
+        self.x = 2
+        self.y = 0
 
     def __str__(self):
         return '{},{}'.format(self.x, self.y)
