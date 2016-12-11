@@ -8,7 +8,6 @@ class Instruction:
         last_dash_index = instruction.rfind('-')
         first_bracket_index = instruction.find('[')
         encrypted_name = instruction[:last_dash_index]
-        encrypted_name = encrypted_name.replace('-', '')
         sector_id = int(instruction[last_dash_index + 1:first_bracket_index])
         checksum = instruction[first_bracket_index + 1:-1]
         return cls(encrypted_name, sector_id, checksum)
@@ -24,6 +23,8 @@ class Instruction:
     def _get_char_map(self):
         char_map = {}
         for char in self.encrypted_name:
+            if char == '-':
+                continue
             if not char in char_map:
                 char_map[char] = 1
             char_map[char] += 1
