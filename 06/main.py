@@ -31,16 +31,16 @@ def get_frequency_maps(messages):
     return frequency_maps
 
 
-def get_most_frequent_char(reverse_frequency_map):
-    highest_count = max(reverse_frequency_map)
-    most_frequent_chars = reverse_frequency_map[highest_count]
-    most_frequent_char = most_frequent_chars[0]
-    return most_frequent_char
+def get_least_frequent_char(reverse_frequency_map):
+    lowest_count = min(reverse_frequency_map)
+    least_frequent_chars = reverse_frequency_map[lowest_count]
+    least_frequent_char = least_frequent_chars[0]
+    return least_frequent_char
 
 
 def correct(messages):
     m = reverse_frequency_maps(get_frequency_maps(messages))
-    return ''.join([get_most_frequent_char(r) for r in m])
+    return ''.join([get_least_frequent_char(r) for r in m])
 
 
 def main():
