@@ -1,4 +1,8 @@
 from sys import stdin
+from string import ascii_lowercase
+
+
+ALPHABET_SIZE = len(ascii_lowercase)
 
 
 class Instruction:
@@ -25,7 +29,7 @@ class Instruction:
         for char in self.encrypted_name:
             if char == '-':
                 continue
-            if not char in char_map:
+            if char not in char_map:
                 char_map[char] = 1
             char_map[char] += 1
         return char_map
@@ -34,7 +38,7 @@ class Instruction:
         count_map = {}
         char_map = self._get_char_map()
         for k, v in char_map.items():
-            if not v in count_map:
+            if v not in count_map:
                 count_map[v] = []
             count_map[v].append(k)
             count_map[v].sort()
@@ -51,9 +55,20 @@ class Instruction:
             count_ordered_chars.extend(chars)
         return count_ordered_chars
 
+    def _decipher_char(self, char):
+        if char == '-':
+            return ' '
+        char_index = ascii_lowercase.find(char)
+        index_offset = self.sector_id % ALPHABET_SIZE
+        new_char_index = (char_index + index_offset) % ALPHABET_SIZE
+        return ascii_lowercase[new_char_index]
+
     def is_real(self):
         count_ordered_chars = self._get_count_ordered_chars()
         return self.checksum == ''.join(count_ordered_chars[:5])
+
+    def decipher_name(self):
+        return ''.join([self._decipher_char(c) for c in self.encrypted_name])
 
 
 def get_instructions():
@@ -63,11 +78,18 @@ def get_instructions():
 
 def main():
     sector_id_sum = 0
+    northpole_sector_id = None
     for instruction in get_instructions():
         is_real = instruction.is_real()
-        print('REAL' if is_real else 'FAKE', instruction)
         if is_real:
+            deciphered_name = instruction.decipher_name()
+            print('REAL', instruction, instruction.decipher_name())
             sector_id_sum += instruction.sector_id
-    print(sector_id_sum)
+            if deciphered_name == 'northpole object storage':
+                northpole_sector_id = instruction.sector_id
+        else:
+            print('FAKE', instruction)
+    print('SECTOR ID SUM', sector_id_sum)
+    print('NORTHPOLE SECTOR ID', northpole_sector_id)
 
 main()
