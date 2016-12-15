@@ -13,10 +13,11 @@ class Seq:
     def __repr__(self):
         return self.__str__()
 
-    def has_abba(self):
-        return self.get_abba() != None
+    def has_xyyx(self):
+        return len(self.get_all_xyyx()) != 0
 
-    def get_abba(self):
+    def get_all_xyyx(self):
+        r = []
         s = self.string
         l = len(s)
         o = 4
@@ -25,8 +26,22 @@ class Seq:
             if p[0] != p[1] and \
                     p[0] == p[3] and \
                     p[1] == p[2]:
-                return p
-        return None
+                r.append(p)
+        return r
+
+    def has_xyx(self):
+        return len(self.get_all_xyx()) != 0
+
+    def get_all_xyx(self):
+        r = []
+        s = self.string
+        l = len(s)
+        o = 3
+        for i in range(0, l - o + 1):
+            p = s[i:i + o]
+            if p[0] != p[1] and p[0] == p[2]:
+                r.append(p)
+        return r
 
 
 class SupSeq(Seq):
@@ -58,8 +73,19 @@ class IPV7Address:
         return '{}, {}'.format(self.sup_seqs, self.hyp_seqs)
 
     def has_tls(self):
-        return any([x.has_abba() for x in self.sup_seqs]) and \
-            not any([x.has_abba() for x in self.hyp_seqs])
+        return any([x.has_xyyx() for x in self.sup_seqs]) and \
+            not any([x.has_xyyx() for x in self.hyp_seqs])
+
+    def has_ssl(self):
+        sup_aba = [x.get_all_xyx() for x in self.sup_seqs if x.has_xyx()]
+        sup_aba = set([x for sublist in sup_aba for x in sublist])
+        hyp_bab = [x.get_all_xyx() for x in self.hyp_seqs if x.has_xyx()]
+        hyp_bab = set([x for sublist in hyp_bab for x in sublist])
+        if len(sup_aba) == 0 or len(hyp_bab) == 0:
+            return False
+        hyp_aba = [''.join([x[1], x[0], x[1]]) for x in hyp_bab]
+        res = len(sup_aba.intersection(hyp_aba)) != 0
+        return res
 
 
 def get_addresses():
@@ -68,11 +94,15 @@ def get_addresses():
 
 
 def main():
-    counter = 0
+    tls_counter = 0
+    ssl_counter = 0
     for address in get_addresses():
         if address.has_tls():
-            counter += 1
-    print(counter)
+            tls_counter += 1
+        if address.has_ssl():
+            ssl_counter += 1
+    print('TLS', tls_counter)
+    print('SSL', ssl_counter)
 
 
 main()
