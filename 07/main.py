@@ -14,6 +14,9 @@ class Seq:
         return self.__str__()
 
     def has_abba(self):
+        return self.get_abba() != None
+
+    def get_abba(self):
         s = self.string
         l = len(s)
         o = 4
@@ -22,14 +25,14 @@ class Seq:
             if p[0] != p[1] and \
                     p[0] == p[3] and \
                     p[1] == p[2]:
-                return True
-        return False
+                return p
+        return None
 
 
-class TxtSeq(Seq):
+class SupSeq(Seq):
 
     def __init__(self, string):
-        super(TxtSeq, self).__init__(string)
+        super(SupSeq, self).__init__(string)
 
 
 class HypSeq(Seq):
@@ -43,19 +46,19 @@ class IPV7Address:
     @classmethod
     def fromstring(cls, string):
         parts = re.split(r'[\[\]]', string)
-        txt_seqs = [TxtSeq(x) for x in parts[::2]]
+        sup_seqs = [SupSeq(x) for x in parts[::2]]
         hyp_seqs = [HypSeq(x) for x in parts[1::2]]
-        return cls(txt_seqs, hyp_seqs)
+        return cls(sup_seqs, hyp_seqs)
 
-    def __init__(self, txt_seqs, hyp_seqs):
-        self.txt_seqs = txt_seqs
+    def __init__(self, sup_seqs, hyp_seqs):
+        self.sup_seqs = sup_seqs
         self.hyp_seqs = hyp_seqs
 
     def __str__(self):
-        return '{}, {}'.format(self.txt_seqs, self.hyp_seqs)
+        return '{}, {}'.format(self.sup_seqs, self.hyp_seqs)
 
     def has_tls(self):
-        return any([x.has_abba() for x in self.txt_seqs]) and \
+        return any([x.has_abba() for x in self.sup_seqs]) and \
             not any([x.has_abba() for x in self.hyp_seqs])
 
 
