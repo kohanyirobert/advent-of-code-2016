@@ -1,5 +1,6 @@
 import re
 from sys import stdin
+from itertools import chain
 
 
 class Seq:
@@ -72,20 +73,25 @@ class IPV7Address:
     def __str__(self):
         return '{}, {}'.format(self.sup_seqs, self.hyp_seqs)
 
+    def _get_all_sup_aba(self):
+        l = [x.get_all_xyx() for x in self.sup_seqs if x.has_xyx()]
+        return set(chain.from_iterable(l))
+
+    def _get_all_hyp_bab(self):
+        l = [x.get_all_xyx() for x in self.hyp_seqs if x.has_xyx()]
+        return set(chain.from_iterable(l))
+
+    def _get_all_hyp_aba(self):
+        return [''.join([x[1], x[0], x[1]]) for x in self._get_all_hyp_bab()]
+
     def has_tls(self):
         return any([x.has_xyyx() for x in self.sup_seqs]) and \
             not any([x.has_xyyx() for x in self.hyp_seqs])
 
     def has_ssl(self):
-        sup_aba = [x.get_all_xyx() for x in self.sup_seqs if x.has_xyx()]
-        sup_aba = set([x for sublist in sup_aba for x in sublist])
-        hyp_bab = [x.get_all_xyx() for x in self.hyp_seqs if x.has_xyx()]
-        hyp_bab = set([x for sublist in hyp_bab for x in sublist])
-        if len(sup_aba) == 0 or len(hyp_bab) == 0:
-            return False
-        hyp_aba = [''.join([x[1], x[0], x[1]]) for x in hyp_bab]
-        res = len(sup_aba.intersection(hyp_aba)) != 0
-        return res
+        sup_aba = self._get_all_sup_aba()
+        hyp_aba = self._get_all_hyp_aba()
+        return len(sup_aba.intersection(hyp_aba)) > 0
 
 
 def get_addresses():
