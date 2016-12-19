@@ -42,21 +42,17 @@ class Marker:
 class Decompression:
 
     def __init__(self, compressed):
-        self.finished = False
         self.decompressed = ''
         self.compressed = compressed
 
-    def is_decompressed(self):
-        return self.finished
-
     def decompress(self):
-        marker = Marker.fromstring(self.compressed)
-        if marker == None:
-            self.finished = True
-            return
-        decompressed, compressed = marker.decompress()
-        self.decompressed += decompressed
-        self.compressed = compressed
+        while True:
+            marker = Marker.fromstring(self.compressed)
+            if marker == None:
+                break
+            decompressed, compressed = marker.decompress()
+            self.decompressed += decompressed
+            self.compressed = compressed
 
 
 def get_compressed():
@@ -65,8 +61,7 @@ def get_compressed():
 
 def main():
     decompression = Decompression(get_compressed())
-    while not decompression.is_decompressed():
-        decompression.decompress()
+    decompression.decompress()
     print(len(decompression.decompressed))
 
 main()
