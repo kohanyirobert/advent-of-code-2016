@@ -117,6 +117,7 @@ def main():
     screen = Screen(6, 50)
     for cmd in get_commands():
         cmd.apply_to(screen)
+    print(screen)
     print(screen.get_lit_count())
 
 main()
