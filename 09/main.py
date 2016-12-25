@@ -21,7 +21,7 @@ class MarkedText(Text):
         self.times = times
 
     def __len__(self):
-        return self.size * self.times
+        return len(Compressed(self.string)) * self.times
 
 
 class Compressed:
