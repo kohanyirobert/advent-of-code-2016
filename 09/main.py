@@ -34,15 +34,15 @@ class Compressed:
         while True:
             start = s.find('(')
             if start == -1:
-                yield s
+                yield UnmarkedText(s)
                 break
             elif start > 0:
-                yield s[:start]
+                yield UnmarkedText(s[:start])
                 s = s[start:]
             else:
                 stop = s.find(')', start)
                 size, times = [int(x) for x in s[start + 1:stop].split('x')]
-                yield s[stop + 1:stop + size + 1] * times
+                yield MarkedText(s[stop + 1:stop + size + 1], size, times)
                 s = s[stop + size + 1:]
 
     def __len__(self):
