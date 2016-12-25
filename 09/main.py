@@ -1,58 +1,49 @@
 from sys import stdin
 
 
-class Marker:
+class Text:
 
-    @classmethod
-    def fromstring(cls, string):
-        start = string.find('(')
-        if start == -1:
-            return None
-        stop = string.find(')', start)
-        length, times = [int(_) for _ in string[start + 1:stop].split('x')]
-        return cls(string, start, stop, length, times)
-
-    def __init__(self, string, start, stop, length, times):
+    def __init__(self, string):
         self.string = string
-        self.marker_start = start
-        self.marker_stop = stop
-        self.marker_length = length
-        self.marker_times = times
-        self.start = self.marker_stop + 1
-        self.stop = self.marker_stop + self.marker_length + 1
-
-    def __str__(self):
-        s = ', '.join(['{}={}'] * 6)
-        return s.format(
-            'marker_start', self.marker_start,
-            'marker_stop', self.marker_stop,
-            'marker_length', self.marker_length,
-            'marker_times', self.marker_times,
-            'start', self.start,
-            'stop', self.stop,
-        )
-
-    def decompress(self):
-        decompressed = self.string[:self.marker_start]
-        decompressed += self.marker_times * self.string[self.start:self.stop]
-        compressed = self.string[self.stop:]
-        return decompressed, compressed
 
 
-class Decompression:
+class UnmarkedText(Text):
 
-    def __init__(self, compressed):
-        self.decompressed = ''
-        self.compressed = compressed
+    def __len__(self):
+        return len(self.string)
 
-    def decompress(self):
+
+class MarkedText(Text):
+
+    def __init__(self, string, size, times):
+        super(MarkedText, self).__init__(string)
+        self.size = size
+        self.times = times
+
+    def __len__(self):
+        return self.size * self.times
+
+
+class Compressed:
+
+    def __init__(self, string):
+        self.string = string
+
+    def __iter__(self):
+        s = self.string
         while True:
-            marker = Marker.fromstring(self.compressed)
-            if marker == None:
+            start = s.find('(')
+            if start == -1:
+                yield s
                 break
-            decompressed, compressed = marker.decompress()
-            self.decompressed += decompressed
-            self.compressed = compressed
+            elif start > 0:
+                yield s[:start]
+                s = s[start:]
+            else:
+                stop = s.find(')', start)
+                size, times = [int(x) for x in s[start + 1:stop].split('x')]
+                yield s[stop + 1:stop + size + 1] * times
+                s = s[stop + size + 1:]
 
 
 def get_compressed():
@@ -60,8 +51,6 @@ def get_compressed():
 
 
 def main():
-    decompression = Decompression(get_compressed())
-    decompression.decompress()
-    print(len(decompression.decompressed))
+    print(sum([len(x) for x in Compressed(get_compressed())]))
 
 main()
