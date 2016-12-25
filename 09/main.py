@@ -45,12 +45,15 @@ class Compressed:
                 yield s[stop + 1:stop + size + 1] * times
                 s = s[stop + size + 1:]
 
+    def __len__(self):
+        return sum([len(x) for x in self])
+
 
 def get_compressed():
     return stdin.read().strip()
 
 
 def main():
-    print(sum([len(x) for x in Compressed(get_compressed())]))
+    print(len(Compressed(get_compressed())))
 
 main()
