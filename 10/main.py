@@ -178,10 +178,7 @@ class Factory:
     def tick(self):
         if len(self.instructions) > 0:
             instruction = self.instructions.pop(0)
-            if instruction.apply(self):
-                print('ok', instruction.string)
-            else:
-                print('no', instruction.string)
+            if not instruction.apply(self):
                 self.instructions.append(instruction)
             return True
         return False
@@ -199,13 +196,18 @@ class Factory:
                 return bot
         return None
 
+    def get_out_mul(self, serials):
+        result = 1
+        outs = self.all_dsts['output']
+        for serial in serials:
+            result *= sum(outs[serial].chips)
+        return result
+
 
 def main():
     factory = Factory(Instructions.frominput())
     while factory.tick():
-        bot = factory.get_cmp_bot(17, 61)
-        if bot:
-            print(bot)
-            break
+        pass
+    print(factory.get_out_mul([0, 1, 2]))
 
 main()
